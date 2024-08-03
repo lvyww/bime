@@ -48,4 +48,4 @@
 
 # 群
 
-加群775237860（虎码输入法-新手村）获取程序更新。
+加群[775237860](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=f2QWhBLuPjSx_XSbcuAnp8gz0x1Ec43h&authKey=Sg3%2Fi8e1Ou1elx9oYwbBjwgSkdP%2BI0E8H2784PwcT2H%2BWXIGFTihIjVJAbDwBhpE&noverify=0&group_code=775237860)虎码输入法-新手村）获取程序更新。
