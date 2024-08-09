@@ -32,7 +32,20 @@ namespace bime
         public static string ProcessName = string.Empty;
         //   public static bool IsNewWindow = true;
         public static bool UpdateDPI = false;
-        public static bool UpdateTopMost = false;
+        private static bool updateTopMost = false;
+        public static bool UpdateTopMost
+        {
+            get
+            {
+                return updateTopMost && (WinTitle != "Bime加词" && WinTitle != "Bime设置");
+            }
+            set
+            {
+                updateTopMost = value;
+            }
+
+        }
+
         public static bool UpdateColor = false;
 
         public static int HitDiff = 0;
@@ -169,7 +182,7 @@ namespace bime
                 UpdateDPI = true;
 
                 if (WinTitle != "Bime加词" && WinTitle != "Bime设置")
-                     UpdateTopMost = true;
+                     updateTopMost = true;
 
                 IsGdq = WinTitle == "GainDutch" || WinTitle == "Pain打器" || WinTitle == "查找";
 

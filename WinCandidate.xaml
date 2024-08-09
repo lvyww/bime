@@ -5,12 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:bime"
         mc:Ignorable="d"
-             Title="BimeCandidate" WindowStyle="None" ResizeMode="CanResize" Width="360" Height="40" WindowStartupLocation="CenterScreen" AllowsTransparency="True" BorderThickness="1,1,1,1"  Topmost="True" SizeToContent="WidthAndHeight" Background="Transparent" ShowInTaskbar="False" Loaded="Window_Loaded" >
+             Title="BimeCandidate" WindowStyle="None" ResizeMode="CanResize" Width="360" Height="40" WindowStartupLocation="CenterScreen" AllowsTransparency="True" BorderThickness="1,1,1,1"  Topmost="True" SizeToContent="WidthAndHeight" Background="Transparent" ShowInTaskbar="False" Loaded="Window_Loaded" Focusable="False">
 
 
     <Window.ContextMenu>
         <ContextMenu>
-            <MenuItem Header="虎码官网" Click="MenuOfficial_Click" IsCheckable="False" ></MenuItem>
+            <MenuItem Header="Github页面" Click="MenuOfficial_Click" IsCheckable="False" ></MenuItem>
             <Separator></Separator>
             <MenuItem Header="码表文件夹" Click="MenuFolder_Click" IsCheckable="False" ></MenuItem>
             <MenuItem Header="重载码表" Click="MenuReload_Click" IsCheckable="False"></MenuItem>

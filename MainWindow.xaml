@@ -7,7 +7,7 @@
        Title="Bime"  WindowStyle="None" ResizeMode="NoResize" Width="32" Height="32" AllowsTransparency="True" BorderThickness="0"  Topmost="True" Loaded="Window_Loaded" Background="Transparent" Closed="Window_Closed" >
     <Window.ContextMenu>
         <ContextMenu >
-            <MenuItem Header="虎码官网" Click="MenuOfficial_Click" IsCheckable="False" ></MenuItem>
+            <MenuItem Header="Github页面" Click="MenuOfficial_Click" IsCheckable="False" ></MenuItem>
             <Separator></Separator>
             <MenuItem Header="码表文件夹" Click="MenuFolder_Click" IsCheckable="False" ></MenuItem>
             <MenuItem Header="重载码表" Click="ReloadMB_Click" IsCheckable="False"></MenuItem>

@@ -2551,14 +2551,19 @@ namespace bime
                 //ctrl键处理
                 if (Win32.GetKeyState(VK_CONTROL) < 0)
                 {
-                    if (InputKey.vkCode == VK_SPACE && Config.GetBool("Ctrl+空格切换中英文"))
+                    if (InputKey.vkCode == VK_SPACE && Config.GetBool("Ctrl+空格切换中英文")) //ctrl space中英文切换
                     {
                         Toggle();
 
                         UpdateStatesBar();
                         return 1;
                     }
-                    else if (State== CompositionState.CnComposing && InputKey.vkCode >= 49 && InputKey.vkCode <= 57) //1-9 调频删词
+                    else if (InputKey.vkCode == VK_OEM_PLUS && Config.GetBool("Ctrl+等号手动加词")) //ctrl 加号 手动加词
+                    {
+                        ShowWinAddCi();
+                        return 1;
+                    }
+                    else if (State== CompositionState.CnComposing && InputKey.vkCode >= 49 && InputKey.vkCode <= 57) // ctrl 1-9 调频删词
                     {
 
                         int num = InputKey.vkCode - 49 + 1;
@@ -2601,15 +2606,7 @@ namespace bime
 
                     return CallNextHook(hKeyboardHook, nCode, wParam, lParam);
                 }
-                /*
-                if (InputKey.vkCode == VK_SPACE && GetKeyState(0x11) < 0) //ctrl + space
-                {
 
-
-                    Toggle();
-                    return 1;
-                }
-                */
 
                 if (States.IsGdq)
                 {
@@ -4592,6 +4589,7 @@ namespace bime
                 "中文状态下使用英文标点", "否",
                 "shift切换中英文", "是",
                 "Ctrl+空格切换中英文", "是",
+                "Ctrl+等号手动加词", "是",
                 "回车清屏", "否",
                 "TAB清屏", "是",
                 "竖排候选", "是",
@@ -4740,7 +4738,7 @@ namespace bime
         public void OpenOfficial()
         {
             Process p = new Process();
-            p.StartInfo.FileName = "https://tiger-code.com";
+            p.StartInfo.FileName = "https://github.com/lvyww/bime";
             p.Start();
         }
 
