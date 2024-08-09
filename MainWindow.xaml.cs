@@ -2797,8 +2797,8 @@ namespace bime
 
 
 
-        private Regex RgTimer = new Regex(@"^D[sS]([0-9,]*[.])?[0-9,]*$");
-        private Regex RgCnum = new Regex(@"^S([0-9,]*[.])?[0-9,]*$");
+        private Regex RgTimer = new Regex(@"^D[sS]([0-9,]*[.])?[0-9,]+$");
+        private Regex RgCnum = new Regex(@"^S([0-9,]*[.])?[0-9,]+$");
         private int ProcCnUpperCase(int value) //中文有编码
         {
 
