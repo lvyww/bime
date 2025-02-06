@@ -3249,7 +3249,7 @@ namespace bime
                 StateTrans(CompositionState.CnIdle);
                 return KeyProccessed();
             }
-            else if (Config.GetBool("分号次选") && value == 0xBA)// && MB.ContainsKey(InputCode) && MB[InputCode].Count >= 2) //分号次选
+            else if (Config.GetBool("分号次选") && value == 0xBA && NotShifted)// && MB.ContainsKey(InputCode) && MB[InputCode].Count >= 2) //分号次选
             {
 
                 CommitCandi(1);
@@ -3257,7 +3257,7 @@ namespace bime
                 StateTrans(CompositionState.CnIdle);
                 return KeyProccessed();
             }
-            else if (Config.GetBool("引号三选") && value == 0xDE)// && MB.ContainsKey(InputCode) && MB[InputCode].Count >= 3) //引号次选
+            else if (Config.GetBool("引号三选") && value == 0xDE && NotShifted)// && MB.ContainsKey(InputCode) && MB[InputCode].Count >= 3) //引号次选
             {
 
                 CommitCandi(2);

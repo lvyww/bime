@@ -13,30 +13,32 @@
             <RowDefinition Height="10"></RowDefinition>
         </Grid.RowDefinitions>
 
+        <ScrollViewer>
+            <Grid   Name ="GridMain" Width="auto" Height="auto" Margin="20,5,20,5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Column="0" Grid.Row="0" FontSize="14" Name="TbFonts" Text="字体" Margin="10, 3, 10, 3"></TextBlock>
+                <ComboBox Grid.Column="1" Grid.Row="0"  Name="CbFonts" Margin="10, 3, 10, 3"></ComboBox>
 
+                <TextBlock Grid.Column="0" Grid.Row="1" FontSize="14" Name="TbPageKey" Text="翻页键" Margin="10, 3, 10, 3"></TextBlock>
+                <StackPanel Grid.Column="1" Grid.Row="1"  Name="SpPageKey" Margin="10, 1, 10, 1">
+                    <RadioButton Content="[ ]" Foreground="LightGray" Margin="0, 1, 0, 1"></RadioButton>
+                    <RadioButton Content="- =" Foreground="LightGray" Margin="0, 1, 0, 1"></RadioButton>
+                    <RadioButton Content="Shift Tab/Tab" Foreground="LightGray" Margin="0, 1, 0, 1"></RadioButton>
+                    <RadioButton Content="PageUp/PageDown" Foreground="LightGray" Margin="0, 1, 0, 1"></RadioButton>
 
-        <Grid   Name ="GridMain" Width="auto" Height="auto" Margin="20,5,20,5">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"></ColumnDefinition>
-                <ColumnDefinition Width="auto"></ColumnDefinition>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"></RowDefinition>
-                <RowDefinition Height="auto"></RowDefinition>
-            </Grid.RowDefinitions>
-            <TextBlock Grid.Column="0" Grid.Row="0" FontSize="14" Name="TbFonts" Text="字体" Margin="10, 3, 10, 3"></TextBlock>
-            <ComboBox Grid.Column="1" Grid.Row="0"  Name="CbFonts" Margin="10, 3, 10, 3"></ComboBox>
+                </StackPanel>
 
-            <TextBlock Grid.Column="0" Grid.Row="1" FontSize="14" Name="TbPageKey" Text="翻页键" Margin="10, 3, 10, 3"></TextBlock>
-            <StackPanel Grid.Column="1" Grid.Row="1"  Name="SpPageKey" Margin="10, 1, 10, 1">
-                <RadioButton Content="[ ]" Foreground="LightGray" Margin="0, 1, 0, 1"></RadioButton>
-                <RadioButton Content="- =" Foreground="LightGray" Margin="0, 1, 0, 1"></RadioButton>
-                <RadioButton Content="Shift Tab/Tab" Foreground="LightGray" Margin="0, 1, 0, 1"></RadioButton>
-                <RadioButton Content="PageUp/PageDown" Foreground="LightGray" Margin="0, 1, 0, 1"></RadioButton>
+            </Grid>
 
-            </StackPanel>
+        </ScrollViewer>
 
-        </Grid>
 
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
