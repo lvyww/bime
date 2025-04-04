@@ -184,7 +184,7 @@ namespace bime
                 if (WinTitle != "Bime加词" && WinTitle != "Bime设置")
                      updateTopMost = true;
 
-                IsGdq = WinTitle == "GainDutch" || WinTitle == "Pain打器" || WinTitle == "查找";
+                IsGdq = WinTitle == "GainDutch" || WinTitle == "Pain打器" || WinTitle == "查找" || WinTitle.Contains("跟打");
 
                 IsJs = WinTitle.Contains("长流跟打器") || WinTitle.Contains("极速跟打器");
                 IsMuyi = WinTitle.Contains("木易") || WinTitle.Contains("赛文跟打") || WinTitle.Contains("我爱打字网");
