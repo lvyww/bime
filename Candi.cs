@@ -21,10 +21,24 @@ namespace bime
             }
         }
 
+        static Random random = new Random();
         public static string ConvertCandi(string text)
         {
             //     string msg = text;
             string[] WeekName = new string[] { "周日", "周一", "周二", "周三", "周四", "周五", "周六" };
+
+            if (text.Length > 3 && text.Substring(0,1) == "{" && text.Substring(text.Length - 1 ,1) == "}" && text.Contains("|"))
+            {
+                var randSet = text.Substring(1, text.Length - 2).Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                if (randSet == null || randSet.Length == 0)
+                {
+                    throw new ArgumentException("数组不能为空或null", nameof(randSet));
+
+
+                }
+                int index = random.Next(randSet.Length);
+                return randSet[index];
+            }
 
             switch (text)
             {
