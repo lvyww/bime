@@ -2497,7 +2497,7 @@ namespace bime
 
 
               // alt键处理
-                if (Win32.GetKeyState(VK_MENU) < 0)
+                if (Win32.GetKeyState(VK_MENU) < 0) //按下alt键
                 {
                     if (InputKey.vkCode == VK_OEM_5 && Config.GetBool("Alt+\\开启或禁用Bime"))
                     {

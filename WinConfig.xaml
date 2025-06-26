@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:bime"
         mc:Ignorable="d"
-        Title="Bime设置" Height="450" Width="800" Background="#505050"  Foreground="LightGray" SizeToContent="WidthAndHeight" Loaded="Window_Loaded" Closing="Window_Closing" WindowStartupLocation="CenterScreen">
+        Title="Bime设置" Height="450" Width="800" MaxHeight="720" Background="#505050"  Foreground="LightGray" SizeToContent="WidthAndHeight" Loaded="Window_Loaded" Closing="Window_Closing" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>
