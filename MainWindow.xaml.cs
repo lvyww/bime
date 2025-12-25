@@ -769,7 +769,7 @@ namespace bime
 
 
 
-            if (string.IsNullOrEmpty(msg))
+             if (string.IsNullOrEmpty(msg))
                 return;
 
             switch (msg)
@@ -3127,7 +3127,7 @@ namespace bime
                 return KeyProccessed();
 
             }
-            else if (value >= 48 && value <= 57) //1-9 //小写字母
+            else if (value >= 48 && value <= 57) //1-9 
             {
                 int num = value - 49 + 1;
 
@@ -3150,7 +3150,14 @@ namespace bime
                 else
                 {
                     BufferAdd(az[value - 65]);
-                    StateTrans(CompositionState.CnComposing);
+                    if (Config.GetInt("自动上屏时间（毫秒）") == 0 && Config.GetBool("最大码长无重自动上屏") && Config.GetInt("最大码长") == 1 && MB.ContainsKey(InputCode) && MB[InputCode].Count == 1) //一码上屏
+                    {
+
+                        CommitCandi(0);
+
+                    }
+                    else
+                        StateTrans(CompositionState.CnComposing);
 
 
                     return KeyProccessed();
