@@ -1,4 +1,5 @@
 ﻿using Accessibility;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -4758,10 +4759,87 @@ namespace bime
         public void ReloadMB()
         {
             this.Activate();
-            MessageBox.Show("码表重新读取完成！");
+
             InitMBList();
             ReadMB();
+            MessageBox.Show("码表重新读取完成！");
             InitDisplay();
+
+        }
+
+        public void ExportMB()
+        {
+            string contentStr = "hello world";
+            string fileFullPath = "";
+        
+            try
+            {
+                // 1. 获取程序当前运行目录，并拼接子目录「码表导出」的完整路径
+                string appRunPath = AppDomain.CurrentDomain.BaseDirectory;
+                string exportDir = Path.Combine(appRunPath, "码表导出");
+
+                // 2. 判断目录是否存在，不存在则自动创建该目录（核心需求）
+                if (!Directory.Exists(exportDir))
+                {
+                    Directory.CreateDirectory(exportDir);
+                }
+
+                // 3. 拼接默认文件名：词库导出{当前日期-时间}.txt，时间格式无特殊符号、可正常作为文件名
+                string fileName = Config.GetString("当前码表") + $" {DateTime.Now:yyyyMMdd-HHmm}.txt";
+                string defaultFilePath = Path.Combine(exportDir, fileName);
+
+                // 4. 创建WPF保存文件对话框并配置所有参数
+                SaveFileDialog saveFileDialog = new SaveFileDialog()
+                {
+                    // 设置对话框默认打开的目录 = 上面创建的「码表导出」目录
+                    InitialDirectory = exportDir,
+                    // 设置默认文件名（带日期时间）
+                    FileName = fileName,
+                    // 筛选文件类型，只允许选择txt文本文件
+                    Filter = "文本文件 (*.txt)|*.txt|所有文件 (*.*)|*.*",
+                    // 只保存为txt文件，防止用户选错类型
+                    DefaultExt = ".txt",
+                    // 强制扩展名，确保文件后缀一定是.txt
+                    AddExtension = true
+                };
+
+                // 5. 打开保存对话框，判断用户是否点击【保存】按钮
+                if (saveFileDialog.ShowDialog() == true)
+                {
+                    // 6. 将传入的字符串A 写入到用户选择的文件路径中
+                    // 编码默认UTF-8，覆盖模式（若文件同名则直接替换）
+                    StreamWriter sw = new StreamWriter(saveFileDialog.FileName, false, System.Text.Encoding.UTF8);
+                    foreach (var item in MB )
+                    {
+                        sw.WriteLine(item.Key + " " + string.Join(" ", item.Value));
+                    }
+                    //            File.WriteAllText(saveFileDialog.FileName, contentStr, System.Text.Encoding.UTF8);
+                    sw.Close();
+                    // 7. 弹出导出完成的提示消息框
+                    MessageBox.Show("导出完成", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                    fileFullPath = saveFileDialog.FileName;
+                }
+            }
+            catch (Exception ex)
+            {
+                // 异常捕获：任何错误都会弹窗提示，避免程序崩溃
+                MessageBox.Show($"导出失败，错误信息：{ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            //打开并选中导出的文件
+            try
+            {
+                // explorer.exe 是Windows系统的文件资源管理器程序，通过系统指令实现选中文件
+                // /select, 参数：打开文件夹并选中指定文件（英文逗号后无空格）
+                Process.Start(new ProcessStartInfo("explorer.exe", $"/select, {fileFullPath}"));
+            }
+            catch
+            {
+                // 容错处理：如果打开选中失败，则直接打开文件所在的文件夹即可
+                string folderPath = Path.GetDirectoryName(fileFullPath);
+                Process.Start(folderPath);
+            }
+
         }
         private void ReloadMB_Click(object sender, RoutedEventArgs e)
         {
@@ -4769,6 +4847,15 @@ namespace bime
 
 
             ReloadMB();
+
+        }
+
+        private void ExportMB_Click(object sender, RoutedEventArgs e) //导出码表
+        {
+
+
+
+            ExportMB();
 
         }
 

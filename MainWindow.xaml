@@ -11,6 +11,7 @@
             <Separator></Separator>
             <MenuItem Header="码表文件夹" Click="MenuFolder_Click" IsCheckable="False" ></MenuItem>
             <MenuItem Header="重载码表" Click="ReloadMB_Click" IsCheckable="False"></MenuItem>
+            <MenuItem Header="导出码表" Click="ExportMB_Click" IsCheckable="False"></MenuItem>
             <MenuItem Header="加词" Click="MenuAddCi_Click" IsCheckable="False"></MenuItem>
             <MenuItem Header="方案" Name="MenuSchema" IsCheckable="False" ></MenuItem>
             <MenuItem Header="主题" Name="MenuTheme"></MenuItem>

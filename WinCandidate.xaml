@@ -14,6 +14,7 @@
             <Separator></Separator>
             <MenuItem Header="码表文件夹" Click="MenuFolder_Click" IsCheckable="False" ></MenuItem>
             <MenuItem Header="重载码表" Click="MenuReload_Click" IsCheckable="False"></MenuItem>
+            <MenuItem Header="导出码表" Click="MenuExport_Click" IsCheckable="False"></MenuItem>
             <MenuItem Header="加词" Click="MenuAddCi_Click" IsCheckable="False"></MenuItem>
             <MenuItem Header="方案" Name="FloatMenu"></MenuItem>
             <MenuItem Header="主题" Name="FloatMenuTheme"></MenuItem>

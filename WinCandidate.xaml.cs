@@ -1220,7 +1220,11 @@ namespace bime
 
         }
 
+        private void MenuExport_Click(object sender, RoutedEventArgs e)
+        {
+            MainWindow.Current?.ExportMB();
 
+        }
         private void MenuAddCi_Click(object sender, RoutedEventArgs e)
         {
             MainWindow.Current?.ShowWinAddCi();
