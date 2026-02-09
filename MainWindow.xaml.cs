@@ -2396,10 +2396,32 @@ namespace bime
         int soundCounter = 0;
         int soundIndex = 0;
         Random rnd = new Random();
+
+        MediaPlayer PlayerKey;
+        MediaPlayer PlayerSpace;
+        MediaPlayer PlayerBack;
+
         private void PlaySound(int keyType)
         {
+            if (PlayerBack == null) 
+            {
+                PlayerBack = new MediaPlayer();
+                PlayerBack.Open(new Uri("sounds/KeyFunc.wav", UriKind.Relative));
+            }
 
-            MediaPlayer player = new MediaPlayer();
+            if (PlayerKey == null)
+            {
+                PlayerKey = new MediaPlayer();
+                PlayerKey.Open(new Uri("sounds/KeyNormal.wav", UriKind.Relative));
+            }
+
+            if (PlayerSpace == null)
+            {
+                PlayerSpace = new MediaPlayer();
+                PlayerSpace.Open(new Uri("sounds/KeySpace.wav", UriKind.Relative));
+            }
+
+ 
 
             double vol = Config.GetDouble("按键音量0~100") / 100.0;
 
@@ -2408,15 +2430,19 @@ namespace bime
 
             if (vol > 1)
                 vol = 1;
-            player.Volume = vol;
 
   
 
-            string path = "";
+
+  
+
+
             switch (keyType)
             {
                 case VK_SPACE:
-                    player.Open(new Uri("sounds/KeySpace.wav", UriKind.Relative));
+                    PlayerSpace.Stop();
+                    PlayerSpace.Volume = vol;
+                    PlayerSpace.Play();
                     break;
                 case VK_BACK:
                 case VK_RETURN:
@@ -2424,17 +2450,20 @@ namespace bime
                 case VK_LSHIFT:
                 case VK_RSHIFT:
                 case VK_SHIFT:
-
-                    player.Open(new Uri("sounds/KeyFunc.wav", UriKind.Relative));
+                    PlayerBack.Stop();
+                    PlayerBack.Volume = vol;
+                    PlayerBack.Play();
                     break;
                 default:
-                    player.Open(new Uri("sounds/KeyNormal.wav", UriKind.Relative));
+                    PlayerKey.Stop();
+                    PlayerKey.Volume = vol;
+                    PlayerKey.Play();
                     break;
 
             }
 
 
-            player.Play();
+      
         }
 
         private int KeyboardHookProc(int nCode, Int32 wParam, IntPtr lParam)
@@ -3140,7 +3169,7 @@ namespace bime
             {
 
 
-                if (Config.GetInt("自动上屏时间（毫秒）") > 0 && RevertKey(value))
+                if (Config.GetInt("自动空格延时（毫秒）") > 0 && RevertKey(value))
                 {
                     StateTrans(CompositionState.CnComposing);
                     return ProcCnComposing(value);
@@ -3151,7 +3180,7 @@ namespace bime
                 else
                 {
                     BufferAdd(az[value - 65]);
-                    if (Config.GetInt("自动上屏时间（毫秒）") == 0 && Config.GetBool("最大码长无重自动上屏") && Config.GetInt("最大码长") == 1 && MB.ContainsKey(InputCode) && MB[InputCode].Count == 1) //一码上屏
+                    if (Config.GetInt("自动空格延时（毫秒）") == 0 && Config.GetBool("最大码长无重自动上屏") && Config.GetInt("最大码长") == 1 && MB.ContainsKey(InputCode) && MB[InputCode].Count == 1) //一码上屏
                     {
 
                         CommitCandi(0);
@@ -3410,16 +3439,16 @@ namespace bime
                     }
 
                 }
-                else if (Config.GetInt("自动上屏时间（毫秒）") == 0 && InputCode.Length >= Config.GetInt("最大码长")) //==4,顶字上屏
+                else if (Config.GetInt("自动空格延时（毫秒）") == 0 && InputCode.Length >= Config.GetInt("最大码长")) //==4,顶字上屏
                 {
                     CommitDing(ch);
                     StateTrans(CompositionState.CnComposing);
 
                 }
-                else if (Config.GetInt("自动上屏时间（毫秒）") > 0 || InputCode.Length < Config.GetInt("最大码长")) //
+                else if (Config.GetInt("自动空格延时（毫秒）") > 0 || InputCode.Length < Config.GetInt("最大码长")) //
                 {
 
-                    if (Config.GetInt("自动上屏时间（毫秒）") ==0 && Config.GetBool("最大码长无重自动上屏") && InputCode.Length == Config.GetInt("最大码长") - 1 && MB.ContainsKey(InputCode + ch) && MB[InputCode + ch].Count == 1) //四码唯一上屏
+                    if (Config.GetInt("自动空格延时（毫秒）") ==0 && Config.GetBool("最大码长无重自动上屏") && InputCode.Length == Config.GetInt("最大码长") - 1 && MB.ContainsKey(InputCode + ch) && MB[InputCode + ch].Count == 1) //四码唯一上屏
                     {
 
                         AutoCommitCandi(ch);
@@ -3940,7 +3969,7 @@ namespace bime
 
             double seconds = (DateTime.Now - oldTime).TotalMilliseconds;
 
-            double thresh = Config.GetInt("自动上屏时间（毫秒）");
+            double thresh = Config.GetInt("自动空格延时（毫秒）");
 
             double tmp = 80;
             if (InputCode.Length >=1)
@@ -3969,10 +3998,10 @@ namespace bime
 
             }
 
-            if (Config.GetInt("自动上屏时间（毫秒）") > 0)
+            if (Config.GetInt("自动空格延时（毫秒）") > 0)
             {
 
-                double time = Config.GetInt("自动上屏时间（毫秒）") * 10;
+                double time = Config.GetInt("自动空格延时（毫秒）") * 10;
 
 
 
@@ -3984,10 +4013,10 @@ namespace bime
         private void BufferAdd(string s)  //auto space not used
         {
             InputCode += s;
-            if (Config.GetInt("自动上屏时间（毫秒）") > 0)
+            if (Config.GetInt("自动空格延时（毫秒）") > 0)
             {
 
-                double time = Config.GetInt("自动上屏时间（毫秒）");
+                double time = Config.GetInt("自动空格延时（毫秒）");
 
                 bool isAlpha = true;
 
@@ -4026,7 +4055,7 @@ namespace bime
 
             SendBack();
             InputCode = "";
-            if (Config.GetInt("自动上屏时间（毫秒）") > 0)
+            if (Config.GetInt("自动空格延时（毫秒）") > 0)
                 AutoSpace.ClearTimer();
 
         }
@@ -4617,7 +4646,7 @@ namespace bime
                 "空码自动清屏", "是",
                 "最大码长", "4",
                 "最大码长无重自动上屏", "是",
-                "自动上屏时间（毫秒）", "",
+                "自动空格延时（毫秒）", "",
                 "隐藏候选", "否",
                 "字体", "#霞鹜文楷 GB 屏幕阅读版",
                 "字体大小", "17",
@@ -5164,9 +5193,9 @@ namespace bime
         {
             DateTime newTime = DateTime.Now;
 
-            double seconds = (DateTime.Now - LastTime).TotalMilliseconds + Config.GetInt("自动上屏时间（毫秒）");
+            double seconds = (DateTime.Now - LastTime).TotalMilliseconds + Config.GetInt("自动空格延时（毫秒）");
 
-            double thresh = Config.GetInt("自动上屏时间（毫秒）");
+            double thresh = Config.GetInt("自动空格延时（毫秒）");
 
             double tmp = 80;
             double tmp2 = 1;
@@ -5363,7 +5392,7 @@ namespace bime
         }
         public void AutoCommitSpace (object parma)
         {
-            if (Config.GetInt("自动上屏时间（毫秒）") > 0)
+            if (Config.GetInt("自动空格延时（毫秒）") > 0)
                 AutoSpace.ClearTimer();
 
 

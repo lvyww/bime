@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:bime"
         mc:Ignorable="d"
-        Title="Bime设置" Height="450" Width="800" MaxHeight="720" Background="#505050"  Foreground="LightGray" SizeToContent="WidthAndHeight" Loaded="Window_Loaded" Closing="Window_Closing" WindowStartupLocation="CenterScreen">
+        Title="Bime设置" Height="450" Width="800" MaxHeight="720" Background="#606060"  Foreground="LightGray" SizeToContent="WidthAndHeight" Loaded="Window_Loaded" Closing="Window_Closing" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>
@@ -13,31 +13,32 @@
             <RowDefinition Height="10"></RowDefinition>
         </Grid.RowDefinitions>
 
-        <ScrollViewer>
-            <Grid   Name ="GridMain" Width="auto" Height="auto" Margin="20,5,20,5">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"></ColumnDefinition>
-                    <ColumnDefinition Width="auto"></ColumnDefinition>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                </Grid.RowDefinitions>
-                <TextBlock Grid.Column="0" Grid.Row="0" FontSize="14" Name="TbFonts" Text="字体" Margin="10, 3, 10, 3"></TextBlock>
-                <ComboBox Grid.Column="1" Grid.Row="0"  Name="CbFonts" Margin="10, 3, 10, 3"></ComboBox>
 
-                <TextBlock Grid.Column="0" Grid.Row="1" FontSize="14" Name="TbPageKey" Text="翻页键" Margin="10, 3, 10, 3"></TextBlock>
-                <StackPanel Grid.Column="1" Grid.Row="1"  Name="SpPageKey" Margin="10, 1, 10, 1">
-                    <RadioButton Content="[ ]" Foreground="LightGray" Margin="0, 1, 0, 1"></RadioButton>
-                    <RadioButton Content="- =" Foreground="LightGray" Margin="0, 1, 0, 1"></RadioButton>
-                    <RadioButton Content="Shift Tab/Tab" Foreground="LightGray" Margin="0, 1, 0, 1"></RadioButton>
-                    <RadioButton Content="PageUp/PageDown" Foreground="LightGray" Margin="0, 1, 0, 1"></RadioButton>
+            <WrapPanel   Name ="GridMain" Width="auto" Height="auto" Margin="20,5,20,5" Orientation="Vertical">
 
+            <Border BorderThickness="1" CornerRadius="5" Padding="8,5,8,10" Background="#40000000" Margin="5">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Grid.Column="0" Grid.Row="0" FontSize="14" TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center" Name="TbFonts" Text="字体" Margin="0"></TextBlock>
+                    <ComboBox Grid.Column="1" Grid.Row="0"  Name="CbFonts" Margin="0" VerticalAlignment="Center"></ComboBox>
                 </StackPanel>
+            </Border>
 
-            </Grid>
+            <Border BorderThickness="1" CornerRadius="5" Padding="8,5,8,5" Background="#40000000" Margin="5">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock FontSize="14" HorizontalAlignment="Center" Name="TbPageKey" Text="翻页键" Margin="0"></TextBlock>
+                    <StackPanel  Name="SpPageKey" Margin="10, 1, 10, 1" Tag="RadioButtonGroup">
+                        <RadioButton Content="[ ]" Foreground="LightGray" Margin="0, 1, 0, 1"></RadioButton>
+                        <RadioButton Content="- =" Foreground="LightGray" Margin="0, 1, 0, 1"></RadioButton>
+                        <RadioButton Content="Shift Tab/Tab" Foreground="LightGray" Margin="0, 1, 0, 1"></RadioButton>
+                        <RadioButton Content="PageUp/PageDown" Foreground="LightGray" Margin="0, 1, 0, 1"></RadioButton>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
 
-        </ScrollViewer>
+
+            </WrapPanel>
+
+
 
 
         <Grid Grid.Row="1">
@@ -46,8 +47,8 @@
                 <ColumnDefinition  Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
-            <Button x:Name="Save" Content="保存" Grid.Column="0" Width="auto" Margin="20,5,20,5" Click="Save_Click"></Button>
-            <Button x:Name="Cancel" Content="关闭" Grid.Column="1" Width="auto" Margin="20,5,20,5" Click="Cancel_Click"></Button>
+            <Button x:Name="Save" Content="保 存" Grid.Column="0" FontSize="14" Width="200" Height="30" Margin="20,5,20,5" Click="Save_Click"></Button>
+            <Button x:Name="Cancel" Content="关 闭" Grid.Column="1" Width="200" FontSize="14" Height="30" Margin="20,5,20,5" Click="Cancel_Click"></Button>
         </Grid>
 
     </Grid>

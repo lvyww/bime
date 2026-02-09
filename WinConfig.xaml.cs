@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Markup;
 using System.Windows.Media;
 
@@ -61,13 +62,16 @@ namespace bime
                 else if (Value.GetType() == typeof(StackPanel))
                 {
                     var tb = (StackPanel)Value;
-
-                    foreach (RadioButton r in tb.Children)
+                    if (tb.Tag.ToString() == "RadioButtonGroup")
                     {
-                        if (r.IsChecked == true)
-                            return r.Content.ToString();
+                        foreach (RadioButton r in tb.Children)
+                        {
+                            if (r.IsChecked == true)
+                                return r.Content.ToString();
 
+                        }
                     }
+
 
                 }
 
@@ -207,63 +211,84 @@ namespace bime
             settingList.Add(new Setting(TbFonts, CbFonts));
             settingList.Add(new Setting(TbPageKey, SpPageKey));
 
-            int RowCounter = GridMain.RowDefinitions.Count;
-            var mg = new Thickness(10, 3, 10, 3);
+
+            //初始化设置界面
+
+
+
+
             foreach (var item in Config.dicts)
             {
 
                 if (SkipedConfigItems.Contains(item.Key))
                     continue;
 
-                GridMain.RowDefinitions.Add(new RowDefinition());
+                var border = new Border
+                {
+                    BorderThickness = new Thickness(1),
+                   // BorderBrush = Colors.FromString(Config.GetString("窗体字体色"), "50"),
 
-                TextBlock tbk = new TextBlock();
-                tbk.Text = item.Key;
+                    Background = new SolidColorBrush(Color.FromArgb(64, 0, 0, 0)),
+
+                    CornerRadius = new CornerRadius(5),
+                    Margin = new Thickness(10, 5, 10, 5),
+                    Padding = new Thickness(8, 5, 8, 5),
+                    
+                };
+                var stackPanel = new StackPanel()
+                {
+                    Orientation = Orientation.Vertical
+                };
 
 
-                //       tbk.HorizontalAlignment = HorizontalAlignment.Center;
-                tbk.VerticalAlignment = VerticalAlignment.Center;
-                tbk.SetValue(Grid.RowProperty, RowCounter);
-                tbk.SetValue(Grid.ColumnProperty, 0);
-                tbk.Margin = mg;
-                tbk.FontSize = 14;
+                TextBlock tbk = new TextBlock()
+                {
+                    Text = item.Key,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    TextAlignment = TextAlignment.Center,
+                    FontSize = 14,
+                    Margin = new Thickness(0, 0, 0, 0),
+                };
 
-                GridMain.Children.Add(tbk);
 
-
+                UIElement tbv;
                 if (item.Value == "是" || item.Value == "否")
                 {
-                    CheckBox tbv = new CheckBox();
-                    tbv.IsChecked = item.Value == "是";
-                    tbv.VerticalAlignment = VerticalAlignment.Center;
-                    tbv.SetValue(Grid.RowProperty, RowCounter);
-                    tbv.SetValue(Grid.ColumnProperty, 1);
-                    tbv.Margin = mg;
-                    tbv.FontSize = 14;
-
-                    GridMain.Children.Add(tbv);
-
+                    tbv = new CheckBox()
+                    {
+                        IsChecked = item.Value == "是",
+                        VerticalAlignment = VerticalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        FontSize = 14,
+                        Margin = new Thickness(0, 0, 0, 0),
+                    };
+         
                     settingList.Add(new Setting(tbk, tbv));
                 }
                 else
                 {
-                    TextBox tbv = new TextBox();
-                    tbv.Text = item.Value;
-                    //       tbv.HorizontalAlignment = HorizontalAlignment.Center;
-                    tbv.VerticalAlignment = VerticalAlignment.Center;
-                    tbv.SetValue(Grid.RowProperty, RowCounter);
-                    tbv.SetValue(Grid.ColumnProperty, 1);
-                    tbv.Margin = mg;
-                    tbv.FontSize = 14;
-
-                    GridMain.Children.Add(tbv);
-                    settingList.Add(new Setting(tbk, tbv));
+                    tbv = new TextBox()
+                    {
+                        Text = item.Value,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Stretch,
+                        TextAlignment = TextAlignment.Center,
+                        FontSize = 14,
+                        Margin = new Thickness(0, 0, 0, 5),
+                        MaxWidth = 135
+                    };
+                    
                 }
 
+                settingList.Add(new Setting(tbk, tbv));
+                stackPanel.Children.Add(tbk);
+                stackPanel.Children.Add(tbv);
+                border.Child = stackPanel;
+                GridMain.Children.Add(border);
 
-
-                RowCounter++;
             }
+
 
 
         }
@@ -276,55 +301,31 @@ namespace bime
 
             this.Close();
         }
+        /*
+        private List<TextBox> TextBoxList = new List<TextBox>();
+        private List<CheckBox> CheckBoxList = new List<CheckBox>();
 
-
-        private void Save_Click_old(object sender, RoutedEventArgs e)
+        private void GetConfigControls(UIElement container)
         {
-            List<string> key = new List<string>();
-            List<string> value = new List<string>();
-            foreach (var item in GridMain.Children)
-            {
 
-                if (item.GetType() == typeof(TextBlock))
+            foreach (UIElement item in GridMain.Children)
+            {
+                if (item.GetType() == typeof(StackPanel))
                 {
-                    var tb = (TextBlock)item;
-                    key.Add(tb.Text);
-                }
-                if (item.GetType() == typeof(TextBox))
-                {
-                    var tb = (TextBox)item;
-                    value.Add(tb.Text);
+                    GetConfigControls(item);
                 }
                 else if (item.GetType() == typeof(CheckBox))
                 {
-                    var tb = (CheckBox)item;
-                    if (tb.IsChecked == true)
-                        value.Add("是");
-                    else
-                        value.Add("否");
+                    CheckBoxList.Add((CheckBox)item);
                 }
-
-
-            }
-
-            bool modified = false;
-            for (int i = 0; i < key.Count; i++)
-            {
-
-                if (value[i] != Config.GetString(key[i]))
+                else if (item.GetType() == typeof(TextBox))
                 {
-                    modified = true;
-                    Config.Set(key[i], value[i]);
+                    TextBoxList.Add((TextBox)item);
                 }
-
-            }
-            if (modified)
-            {
-
-                MainWindow.Current?.ReloadCfg();
 
             }
         }
+        */
 
 
         private void Save_Click(object sender, RoutedEventArgs e)
