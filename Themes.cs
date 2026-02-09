@@ -107,6 +107,7 @@ namespace bime
         {
             ThemeList.Add("清晨", new Theme("清晨", "FF303030", "FFFDFDFF", "FF56A1DD", 1.25));
             ThemeList.Add("默认", new Theme("默认", "FF000000", "FFFFF8F3", "FF1A7B6B", 1.25));
+            ThemeList.Add("通透", new Theme("通透", "FF2277ee", "00000000", "00000000", 1.25));
             ThemeList.Add("星夜", new Theme("星夜", "FFFFDC6A", "FF232B39", "FF3A6B9B", 1.25)); //暗夜
             ThemeList.Add("纸", new Theme("纸", "FF111111", "FFf5f2e8", "FFa8a09d", 1.3)); //起点
             ThemeList.Add("粉", new Theme("粉", "FF000000", "FFFdF9F5", "ffDeacac", 1.25)); //粉
