@@ -9,6 +9,7 @@ using System.Windows.Media;
 using System.Diagnostics;
 using System.Windows.Controls;
 using System.Windows.Markup;
+using System.Threading;
 
 namespace bime
 {
@@ -454,6 +455,232 @@ namespace bime
         static Dictionary<IntPtr, int> UiaBlackList2 = new Dictionary<IntPtr, int>();
 
         static Dictionary<IntPtr, int> UiaBlackList22 = new Dictionary<IntPtr, int>();
+        private const int UiaTimeoutMs = 50;
+        private readonly object uiaWorkerGate = new object();
+        private readonly object uiaRequestGate = new object();
+        private Thread uiaWorkerThread = null;
+        private UiaWorkerContext uiaWorkerContext = null;
+
+        private enum UiaQueryMode
+        {
+            TextPatternSelection,
+            TextPattern2Caret,
+            FocusedBounds
+        }
+
+        private struct UiaRect
+        {
+            public double Left;
+            public double Top;
+            public double Right;
+            public double Bottom;
+        }
+
+        private sealed class UiaQueryRequest
+        {
+            public UiaQueryMode Mode;
+            public bool Success;
+            public UiaRect Rect;
+            public ManualResetEventSlim Done = new ManualResetEventSlim(false);
+        }
+
+        private sealed class UiaWorkerContext
+        {
+            public readonly object Sync = new object();
+            public readonly AutoResetEvent RequestEvent = new AutoResetEvent(false);
+            public UiaQueryRequest PendingRequest = null;
+        }
+
+        private bool TryQueryUia(UiaQueryMode mode, out UiaRect rect)
+        {
+            rect = default(UiaRect);
+            EnsureUiaWorker();
+
+            UiaWorkerContext ctx;
+            lock (uiaWorkerGate)
+            {
+                ctx = uiaWorkerContext;
+            }
+
+            if (ctx == null)
+            {
+                return false;
+            }
+
+            var req = new UiaQueryRequest { Mode = mode };
+
+            lock (uiaRequestGate)
+            {
+                lock (ctx.Sync)
+                {
+                    ctx.PendingRequest = req;
+                    ctx.RequestEvent.Set();
+                }
+
+                if (!req.Done.Wait(UiaTimeoutMs))
+                {
+                    RestartUiaWorker();
+                    return false;
+                }
+            }
+
+            if (!req.Success)
+            {
+                return false;
+            }
+
+            rect = req.Rect;
+            return true;
+        }
+
+        private void EnsureUiaWorker()
+        {
+            lock (uiaWorkerGate)
+            {
+                if (uiaWorkerThread != null && uiaWorkerThread.IsAlive && uiaWorkerContext != null)
+                {
+                    return;
+                }
+
+                var ctx = new UiaWorkerContext();
+                var thread = new Thread(() => UiaWorkerLoop(ctx))
+                {
+                    IsBackground = true,
+                    Name = "bime-uia-sta"
+                };
+                thread.SetApartmentState(ApartmentState.STA);
+                thread.Start();
+
+                uiaWorkerContext = ctx;
+                uiaWorkerThread = thread;
+            }
+        }
+
+        private void RestartUiaWorker()
+        {
+            lock (uiaWorkerGate)
+            {
+                uiaWorkerContext = null;
+                uiaWorkerThread = null;
+            }
+
+            EnsureUiaWorker();
+        }
+
+        private void UiaWorkerLoop(UiaWorkerContext ctx)
+        {
+            var automation = new CUIAutomation();
+
+            while (true)
+            {
+                ctx.RequestEvent.WaitOne();
+
+                UiaQueryRequest req = null;
+                lock (ctx.Sync)
+                {
+                    req = ctx.PendingRequest;
+                    ctx.PendingRequest = null;
+                }
+
+                if (req == null)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    req.Success = TryQueryUiaCore(automation, req.Mode, out UiaRect rect);
+                    req.Rect = rect;
+                }
+                catch (Exception)
+                {
+                    req.Success = false;
+                }
+                finally
+                {
+                    req.Done.Set();
+                }
+            }
+        }
+
+        private bool TryQueryUiaCore(CUIAutomation automation, UiaQueryMode mode, out UiaRect rect)
+        {
+            rect = default(UiaRect);
+            var focusedElement = automation.GetFocusedElement();
+            if (focusedElement == null)
+            {
+                return false;
+            }
+
+            if (mode == UiaQueryMode.TextPatternSelection)
+            {
+                var textPt = focusedElement.GetCurrentPattern(UIA_PatternIds.UIA_TextPatternId) as IUIAutomationTextPattern;
+                if (textPt == null)
+                {
+                    return false;
+                }
+
+                var sel = textPt.GetSelection();
+                if (sel == null || sel.Length <= 0)
+                {
+                    return false;
+                }
+
+                var t = sel.GetElement(0);
+                if (t == null)
+                {
+                    return false;
+                }
+
+                var k = t.GetBoundingRectangles();
+                if (k == null || k.Length < 4)
+                {
+                    return false;
+                }
+
+                rect.Left = k[0];
+                rect.Top = k[1];
+                rect.Right = k[2];
+                rect.Bottom = k[3];
+                return true;
+            }
+
+            if (mode == UiaQueryMode.TextPattern2Caret)
+            {
+                var textPt2 = focusedElement.GetCurrentPattern(UIA_PatternIds.UIA_TextPattern2Id) as IUIAutomationTextPattern2;
+                if (textPt2 == null)
+                {
+                    return false;
+                }
+
+                int active;
+                var sel = textPt2.GetCaretRange(out active);
+                if (sel == null)
+                {
+                    return false;
+                }
+
+                var k = sel.GetBoundingRectangles();
+                if (k == null || k.Length < 4)
+                {
+                    return false;
+                }
+
+                rect.Left = k[0];
+                rect.Top = k[1];
+                rect.Right = k[2];
+                rect.Bottom = k[3];
+                return true;
+            }
+
+            var r = focusedElement.CurrentBoundingRectangle;
+            rect.Left = r.left;
+            rect.Top = r.top;
+            rect.Right = r.right;
+            rect.Bottom = r.bottom;
+            return true;
+        }
+
         public string GetWindowTitle()
         {
 
@@ -756,41 +983,18 @@ namespace bime
 
                 try
                 {
-
-                    IUIAutomationElement focusedElement;
-
-
-                    //   focusedElement = States.Focused;
-
-                    //  if (focusedElement == null)
-                    focusedElement = States.root.GetFocusedElement();
-
-
-                    if (focusedElement != null)
+                    if (TryQueryUia(UiaQueryMode.TextPatternSelection, out UiaRect rect))
                     {
-                        var textPt = focusedElement.GetCurrentPattern(UIA_PatternIds.UIA_TextPatternId) as IUIAutomationTextPattern;
-                        if (textPt != null)
-                        {
-                            var sel = textPt.GetSelection();
-                            if (sel != null && sel.Length > 0)
-                            {
-                                var t = sel.GetElement(0);
-                                var k = t.GetBoundingRectangles();
-                                if (k != null && k.Length > 0)
-                                {
-                                    x = (k[0] + k[2]);// * 96 / ScreenDpiX;//* ScreenDpiX / 96; //TargetDpi; ; 物理坐标
-                                    y = (k[1] + k[3]);// * 96 / ScreenDpiY; //* ScreenDpiY / 96;// TargetDpi; ;
+                        x = (rect.Left + rect.Right);// * 96 / ScreenDpiX;//* ScreenDpiX / 96; //TargetDpi; ; 物理坐标
+                        y = (rect.Top + rect.Bottom);// * 96 / ScreenDpiY; //* ScreenDpiY / 96;// TargetDpi; ;
 
-                                    x = x / ScreenDpiX * 96.0; //逻辑坐标
-                                    y = y / ScreenDpiY * 96.0;
+                        x = x / ScreenDpiX * 96.0; //逻辑坐标
+                        y = y / ScreenDpiY * 96.0;
 
 
-                                    method = 2;
-                                    //follow = true;
-                                    thisWorked = true;
-                                }
-                            }
-                        }
+                        method = 2;
+                        //follow = true;
+                        thisWorked = true;
                     }
 
 
@@ -833,39 +1037,17 @@ namespace bime
 
                 try
                 {
-
-                    IUIAutomationElement focusedElement;
-
-                    //      focusedElement = States.Focused;
-                    //     if (focusedElement == null)
-                    focusedElement = States.root.GetFocusedElement();
-                    if (focusedElement != null)
+                    if (TryQueryUia(UiaQueryMode.TextPattern2Caret, out UiaRect rect))
                     {
-                        var textPt2 = focusedElement.GetCurrentPattern(UIA_PatternIds.UIA_TextPattern2Id) as IUIAutomationTextPattern2;
+                        x = (rect.Left + rect.Right);// * 96 / ScreenDpiX;//* ScreenDpiX / 96; //TargetDpi; ;
+                        y = (rect.Top + rect.Bottom);// * 96 / ScreenDpiY; //* ScreenDpiY / 96;// TargetDpi; ;
 
+                        x = x / ScreenDpiX * 96.0; //逻辑坐标
+                        y = y / ScreenDpiY * 96.0;
 
-                        if (textPt2 != null)
-                        {
-                            int active;
-                            var sel = textPt2.GetCaretRange(out active);
-                            if (sel != null)
-                            {
-
-                                var k = sel.GetBoundingRectangles();
-                                if (k != null && k.Length > 0)
-                                {
-                                    x = (k[0] + k[2]);// * 96 / ScreenDpiX;//* ScreenDpiX / 96; //TargetDpi; ;
-                                    y = (k[1] + k[3]);// * 96 / ScreenDpiY; //* ScreenDpiY / 96;// TargetDpi; ;
-
-                                    x = x / ScreenDpiX * 96.0; //逻辑坐标
-                                    y = y / ScreenDpiY * 96.0;
-
-                                    method = 22;
-                                    //follow = true;
-                                    thisWorked = true;
-                                }
-                            }
-                        }
+                        method = 22;
+                        //follow = true;
+                        thisWorked = true;
                     }
 
 
@@ -905,31 +1087,19 @@ namespace bime
 
                 try
                 {
-
-                    IUIAutomationElement focusedElement;
-
-
-                    //      focusedElement = States.Focused;
-                    //      if (focusedElement == null)
-                    focusedElement = States.root.GetFocusedElement();
-                    if (focusedElement != null)
+                    if (TryQueryUia(UiaQueryMode.FocusedBounds, out UiaRect rect))
                     {
-
-                        var r = focusedElement.CurrentBoundingRectangle;
-
-
-
-                        x = (r.left + r.right) / 2;
-                        if (r.right - r.left > 20)
+                        x = (rect.Left + rect.Right) / 2;
+                        if (rect.Right - rect.Left > 20)
                             x -= 5;
 
-                        y = r.bottom;
+                        y = rect.Bottom;
 
                         x = x / ScreenDpiX * 96.0; //逻辑坐标
                         y = y / ScreenDpiY * 96.0;
 
 
-                        double yBias = GetVerticalBias(r.top / ScreenDpiY * 96.0, r.bottom / ScreenDpiY * 96.0);
+                        double yBias = GetVerticalBias(rect.Top / ScreenDpiY * 96.0, rect.Bottom / ScreenDpiY * 96.0);
 
 
 
